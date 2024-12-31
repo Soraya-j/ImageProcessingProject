@@ -9,6 +9,7 @@ screen_width = 1200
 screen_height = 700
 prev_x = None
 prev_y = None
+direction = None
 pygame.init()
 
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -24,24 +25,24 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         # player lives
         self.health = 3
-        self.speed = 50
+        self.speed = 20
         raven = pygame.image.load("Raven.png")
         self.raven = pygame.transform.smoothscale(raven, (80,80))
         self.rect = self.raven.get_rect()
         self.rect.x = 0
         self.rect.y = 0
         
-    def move_left(self):
-        self.rect.x -= self.speed
-    def move_right(self):
-        self.rect.x += self.speed
-    def move_up(self):
-        self.rect.y -= self.speed
-    def move_down(self):
-        self.rect.y += self.speed
+    def move(self, direction):
+        if direction == 'left' and self.rect.x > 0:
+            self.rect.x -= self.speed
+        elif direction == 'right' and self.rect.x + self.rect.width < screen_width:
+            self.rect.x += self.speed
+        elif direction == 'up' and self.rect.y > 0:
+            self.rect.y -= self.speed
+        elif direction == 'down'and self.rect.y + self.rect.height < screen_height:
+            self.rect.y += self.speed
         
 
-# Boucle principale
 def main():
     cam = cv2.VideoCapture(0)
     cam.set(cv2.CAP_PROP_FRAME_WIDTH, screen_width + 150)
@@ -51,6 +52,8 @@ def main():
     running = True
     def detect_gesture_right(hand_landmarks):
         global prev_x, prev_y 
+        global direction
+
         finger_tips = [8, 12, 16, 20]  
         finger_mcp = [6, 10, 14, 18]    
         
@@ -61,7 +64,7 @@ def main():
             else:
                 fingers_up.append(False)  
 
-        if all(fingers_up):  
+        if all(fingers_up):
             print("Open hand")
             x, y = int(hand_landmarks.landmark[0].x * screen_width), int(hand_landmarks.landmark[0].y * screen_height)
             if prev_x is not None and prev_y is not None:
@@ -69,25 +72,26 @@ def main():
                 dy = y - prev_y
                 
                 if abs(dx) > abs(dy):
-                    if dx > 20 and game.player.rect.x + game.player.rect.width < screen_width:
-                        game.player.move_right()
-                        # faire en sorte que ca continue de se déplacer tant que un autre mouvement n'est pas
+                    if dx > 20 :
+                        direction = 'right'
                         print('move right')
                         
-                    elif dx < -20 and game.player.rect.x > 0:
-                        game.player.move_left() 
+                    elif dx < -20 :
+                        direction = 'left'
                         print('move left')
                 else:  
-                    if dy > 20 and game.player.rect.y + game.player.rect.height < screen_height:
-                        game.player.move_down()  
+                    if dy > 20 :
+                        direction = 'down'  
                         print('move down')
-                    elif dy < -20 and game.player.rect.y > 0:
-                        game.player.move_up()  
+                    elif dy < -20 :
+                        direction = 'up'  
                         print('move up')
+            game.player.move(direction)
             prev_x = x
             prev_y = y
             
         elif not any(fingers_up):  
+            direction = None
             print("Close hand")
         else:
             print("unknow gesture")
@@ -109,7 +113,6 @@ def main():
         return img_rgb
 
     while running:
-        # Capture d'image OpenCV
         ret, frame = cam.read()
         flip_frame = cv2.flip(frame, 1)
         img_brg = cv2.cvtColor(flip_frame, cv2.COLOR_BGR2RGB)
@@ -129,15 +132,6 @@ def main():
                 game.pressed[event.key] = True
             elif event.type == pygame.KEYUP:
                 game.pressed[event.key] = False
-
-        if game.pressed.get(pygame.K_RIGHT) and game.player.rect.x + game.player.rect.width < screen_width:
-            game.player.move_right()
-        if game.pressed.get(pygame.K_LEFT) and game.player.rect.x > 0:
-            game.player.move_left()
-        if game.pressed.get(pygame.K_UP) and game.player.rect.y > 0:
-            game.player.move_up()
-        if game.pressed.get(pygame.K_DOWN) and game.player.rect.y + game.player.rect.height < screen_height:
-            game.player.move_down()
 
     cam.release()
     pygame.quit()
