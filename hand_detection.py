@@ -47,6 +47,24 @@ def detect_gesture_right(hand_landmarks):
     else:
         print("unknow gesture")
 
+def detect_gesture_left(hand_landmarks):
+        finger_tips = [8, 12, 16, 20]  
+        finger_mcp = [6, 10, 14, 18]    
+        
+        fingers_up = []
+        for tip, mcp in zip(finger_tips, finger_mcp):
+            if hand_landmarks.landmark[tip].y < hand_landmarks.landmark[mcp].y:
+                fingers_up.append(True)  
+            else:
+                fingers_up.append(False) 
+                
+        if not fingers_up[0] and all(fingers_up[1:]):
+            print('Super Power')
+        elif not any(fingers_up):
+            print('Break')
+        else :
+            print('waiting')
+
 def detect_hand(frame):
     hands_detected = hands.process(frame)
     img_rgb = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -54,6 +72,7 @@ def detect_hand(frame):
         for landmarks in hands_detected.multi_hand_landmarks:
             handedness = hands_detected.multi_handedness[hands_detected.multi_hand_landmarks.index(landmarks)].classification[0].label
             if handedness == "Left":  
+                detect_gesture_left(landmarks)
                 print('LEFT hand detected')
             else :
                 print('RIGHT hand detected')
