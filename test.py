@@ -6,12 +6,14 @@ import mediapipe.python.solutions.drawing_utils as drawing
 hands = mp_hands.Hands(static_image_mode=False,max_num_hands=2,min_detection_confidence=0.5)
 screen_width = 1280
 screen_height = 960
+prev_x = None
+prev_y = None
 
 def detect_gesture_right(hand_landmarks):
-    print("fonction detect gesture")
+    global prev_x, prev_y 
     finger_tips = [8, 12, 16, 20]  
     finger_mcp = [6, 10, 14, 18]    
-
+    
     fingers_up = []
     for tip, mcp in zip(finger_tips, finger_mcp):
         if hand_landmarks.landmark[tip].y < hand_landmarks.landmark[mcp].y:
@@ -21,6 +23,25 @@ def detect_gesture_right(hand_landmarks):
 
     if all(fingers_up):  
         print("Open hand")
+        x, y = int(hand_landmarks.landmark[0].x * screen_width), int(hand_landmarks.landmark[0].y * screen_height)
+        if prev_x is not None and prev_y is not None:
+            dx = x - prev_x
+            dy = y - prev_y
+            print(dx, dy)
+
+            if abs(dx) > abs(dy):
+                if dx > 10:  
+                    print('move right')
+                elif dx < -10: 
+                    print('move left')
+            else:  
+                if dy > 10:  
+                    print('move down')
+                elif dy < -10:  
+                    print('move up')
+        prev_x = x
+        prev_y = y
+        
     elif not any(fingers_up):  
         print("Close hand")
     else:
