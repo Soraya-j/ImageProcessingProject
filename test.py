@@ -9,11 +9,17 @@ def detect_hand(frame):
     hands_detected = hands.process(frame)
     img_rgb = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     if hands_detected.multi_hand_landmarks:
-        print('Une main est detectee')
-        return img_rgb
+        for landmarks in hands_detected.multi_hand_landmarks:
+
+            handedness = hands_detected.multi_handedness[hands_detected.multi_hand_landmarks.index(landmarks)].classification[0].label
+            if handedness == "Left":  
+                print('Une main est detectee: Left')
+            else :
+                print('Une main est detectee: Right')
     else : 
         print('Aucune main detectee')
-        return img_rgb
+
+    return img_rgb
         
 
 def capture_video():        
@@ -23,7 +29,6 @@ def capture_video():
     while (True):
         ret, frame = cam.read()
         flip_frame = cv2.flip(frame,1) 
-
         img_bgr = cv2.cvtColor(flip_frame, cv2.COLOR_BGR2RGB)
         img_rgb = detect_hand(img_bgr)
         
