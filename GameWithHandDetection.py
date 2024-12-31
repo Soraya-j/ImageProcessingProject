@@ -31,7 +31,12 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.raven.get_rect()
         self.rect.x = 0
         self.rect.y = 0
-        
+        self.all_power = pygame.sprite.Group()
+    
+    def power(self):
+        power = SuperPower(self)
+        self.all_power.add(power)
+
     def move(self, direction):
         if direction == 'left' and self.rect.x > 0:
             self.rect.x -= self.speed
@@ -41,7 +46,23 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= self.speed
         elif direction == 'down'and self.rect.y + self.rect.height < screen_height:
             self.rect.y += self.speed
-        
+
+class SuperPower(pygame.sprite.Sprite):
+    def __init__(self, player):
+        super().__init__()
+        self.speed = 40
+        self.player = player
+        image = pygame.image.load("fire.png")
+        self.image = pygame.transform.smoothscale(image, (30,30))
+        self.rect = self.image.get_rect()
+        self.rect.x = player.rect.x
+        self.rect.y = player.rect.y
+
+    def move(self): 
+        self.rect.x += self.speed
+        if self.rect.x > screen_width:
+            self.player.all_power.remove(self)
+
 
 def main():
     cam = cv2.VideoCapture(0)
@@ -96,6 +117,29 @@ def main():
         else:
             print("unknow gesture")
 
+    def detect_gesture_left(hand_landmarks):
+        finger_tips = [8, 12, 16, 20]  
+        finger_mcp = [6, 10, 14, 18]    
+        
+        fingers_up = []
+        for tip, mcp in zip(finger_tips, finger_mcp):
+            if hand_landmarks.landmark[tip].y < hand_landmarks.landmark[mcp].y:
+                fingers_up.append(True)  
+            else:
+                fingers_up.append(False) 
+                
+        if not fingers_up[0] and all(fingers_up[1:]):
+            raven = pygame.image.load("Attack.png")
+            game.player.raven = pygame.transform.smoothscale(raven, (80,80))
+            print('Super Power')
+            game.player.power()
+        elif not any(fingers_up):
+            print('Break')
+        else :
+            raven = pygame.image.load("Raven.png")
+            game.player.raven = pygame.transform.smoothscale(raven, (80,80))
+            print('waiting')
+
     def detect_hand(frame):
         hands_detected = hands.process(frame)
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -103,6 +147,7 @@ def main():
             for landmarks in hands_detected.multi_hand_landmarks:
                 handedness = hands_detected.multi_handedness[hands_detected.multi_hand_landmarks.index(landmarks)].classification[0].label
                 if handedness == "Left":  
+                    detect_gesture_left(landmarks)
                     print('LEFT hand detected')
                 else :
                     print('RIGHT hand detected')
@@ -123,15 +168,15 @@ def main():
 
         screen.blit(frame_surface, (0, 0))
         screen.blit(game.player.raven, game.player.rect)
+        for power in game.player.all_power:
+            power.move()
+
+        game.player.all_power.draw(screen)
         pygame.display.flip()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
-                game.pressed[event.key] = True
-            elif event.type == pygame.KEYUP:
-                game.pressed[event.key] = False
 
     cam.release()
     pygame.quit()
