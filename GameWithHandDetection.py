@@ -26,8 +26,13 @@ class Game:
         self.player = Player(self)
         self.all_players.add(self.player)
         self.all_monsters = pygame.sprite.Group()
+        self.all_boxs = pygame.sprite.Group()
         self.pressed = {}
         self.spawn_monster()
+        self.spawn_box(800,100)
+        self.spawn_box(900,500)
+        self.spawn_box(400,200)
+        self.spawn_box(200,600)
     
     def check_collision(self, sprite, group):
         return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
@@ -36,6 +41,10 @@ class Game:
         monster = Monster(self)
         self.all_monsters.add(monster)
 
+    def spawn_box(self, x, y):
+        box = Box(self, x, y)
+        self.all_boxs.add(box)
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, game):
         super().__init__()
@@ -43,7 +52,7 @@ class Player(pygame.sprite.Sprite):
         # player lives
         self.health = 90
         self.max_health = 90
-        self.speed = 20
+        self.speed = 15
         image = pygame.image.load("Raven.png")
         self.image = pygame.transform.smoothscale(image, (80,80))
         self.rect = self.image.get_rect()
@@ -82,6 +91,11 @@ class Player(pygame.sprite.Sprite):
             if not self.game.check_collision(self, self.game.all_monsters):
                 self.rect.y += self.speed
 
+    def broken(self):
+        collided_boxes = self.game.check_collision(self, self.game.all_boxs)
+        for box in collided_boxes:
+            box.damage(10)              
+
 class SuperPower(pygame.sprite.Sprite):
     def __init__(self, player):
         super().__init__()
@@ -110,6 +124,23 @@ class SuperPower(pygame.sprite.Sprite):
         if self.rect.x > screen_width or self.rect.x < 0 or self.rect.y > screen_height or self.rect.y < 0 :
             self.player.all_power.remove(self)
 
+class Box(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        super().__init__()
+        self.game = game
+        image = pygame.image.load('Box.png')
+        self.image = pygame.transform.smoothscale(image, (60,60))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.healt = 20
+    
+    def damage(self, amount):
+        self.healt -= amount
+        print('DAMAGES')
+        if self.healt <= 0:
+            self.game.all_boxs.remove(self)
+
 class Monster(pygame.sprite.Sprite):
     def __init__(self, game):
         super().__init__()
@@ -119,7 +150,7 @@ class Monster(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(0, screen_width)
         self.rect.y = random.randint(0, screen_height)
-        self.speed = 15
+        self.speed = 10
         self.health = 60
         self.max_health = 60
     
@@ -228,6 +259,7 @@ def main():
             print('Super Power')
             game.player.power()
         elif not any(fingers_up):
+            game.player.broken()
             print('Break')
         else :
             raven = pygame.image.load("Raven.png")
@@ -277,6 +309,7 @@ def main():
 
         game.player.all_power.draw(screen)
         game.all_monsters.draw(screen)
+        game.all_boxs.draw(screen)
         pygame.display.flip()
 
         for event in pygame.event.get():
