@@ -107,7 +107,13 @@ class Player(pygame.sprite.Sprite):
     def broken(self):
         collided_boxes = self.game.check_collision(self, self.game.all_boxs)
         for box in collided_boxes:
-            box.damage(10)              
+            box.damage(10)     
+
+    def taken(self):
+        collided_items = self.game.check_collision(self, self.game.all_items)
+        print('collided items : ', collided_items)
+        for item in collided_items:
+            self.game.all_items.remove(item)         
 
 class SuperPower(pygame.sprite.Sprite):
     def __init__(self, player):
@@ -282,6 +288,11 @@ def main():
         elif not any(fingers_up):
             game.player.broken()
             print('Break')
+        elif fingers_up[0] and fingers_up[1] and not all(fingers_up[2:]):
+            game.player.taken()
+            print('Item takes')
+            raven = pygame.image.load('happyRaven.png')
+            game.player.image = pygame.transform.smoothscale(raven, (80,80))
         else :
             raven = pygame.image.load("Raven.png")
             game.player.image = pygame.transform.smoothscale(raven, (80,80))
