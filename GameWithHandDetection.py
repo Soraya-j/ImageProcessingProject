@@ -22,24 +22,30 @@ pygame.display.set_caption("Game with hand detection")
 
 class Game:
     def __init__(self):
-        self.player = Player()
+        self.all_players = pygame.sprite.Group()
+        self.player = Player(self)
+        self.all_players.add(self.player)
         self.all_monsters = pygame.sprite.Group()
         self.pressed = {}
         self.spawn_monster()
+    
+    def check_collision(self, sprite, group):
+        return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
 
     def spawn_monster(self):
-        monster = Monster()
+        monster = Monster(self)
         self.all_monsters.add(monster)
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, game):
         super().__init__()
+        self.game = game
         # player lives
         self.health = 3
         self.speed = 20
         raven = pygame.image.load("Raven.png")
-        self.raven = pygame.transform.smoothscale(raven, (80,80))
-        self.rect = self.raven.get_rect()
+        self.image = pygame.transform.smoothscale(raven, (80,80))
+        self.rect = self.image.get_rect()
         self.rect.x = 0
         self.rect.y = 0
         self.all_power = pygame.sprite.Group()
@@ -50,13 +56,17 @@ class Player(pygame.sprite.Sprite):
 
     def move(self, direction):
         if direction == 'left' and self.rect.x > 0:
-            self.rect.x -= self.speed
+            if not self.game.check_collision(self, self.game.all_monsters):
+                self.rect.x -= self.speed
         elif direction == 'right' and self.rect.x + self.rect.width < screen_width:
-            self.rect.x += self.speed
+            if not self.game.check_collision(self, self.game.all_monsters):
+                self.rect.x += self.speed
         elif direction == 'up' and self.rect.y > 0:
-            self.rect.y -= self.speed
+            if not self.game.check_collision(self, self.game.all_monsters):
+                self.rect.y -= self.speed
         elif direction == 'down' and self.rect.y + self.rect.height < screen_height:
-            self.rect.y += self.speed
+            if not self.game.check_collision(self, self.game.all_monsters):
+                self.rect.y += self.speed
 
 class SuperPower(pygame.sprite.Sprite):
     def __init__(self, player):
@@ -75,14 +85,16 @@ class SuperPower(pygame.sprite.Sprite):
             self.player.all_power.remove(self)
 
 class Monster(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, game):
         super().__init__()
+        self.game = game
         image = pygame.image.load('monster.png')
         self.image = pygame.transform.smoothscale(image,(60,60))
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(0, screen_width)
         self.rect.y = random.randint(0, screen_height)
         self.speed = 20
+        self.health = 2
     
     def move(self):
         global i, dir, dir_list
@@ -170,14 +182,14 @@ def main():
                 
         if not fingers_up[0] and all(fingers_up[1:]):
             raven = pygame.image.load("Attack.png")
-            game.player.raven = pygame.transform.smoothscale(raven, (80,80))
+            game.player.image = pygame.transform.smoothscale(raven, (80,80))
             print('Super Power')
             game.player.power()
         elif not any(fingers_up):
             print('Break')
         else :
             raven = pygame.image.load("Raven.png")
-            game.player.raven = pygame.transform.smoothscale(raven, (80,80))
+            game.player.image = pygame.transform.smoothscale(raven, (80,80))
             print('waiting')
 
     def detect_hand(frame):
@@ -207,7 +219,7 @@ def main():
         frame_surface = pygame.surfarray.make_surface(np.rot90(pg_frame))
 
         screen.blit(frame_surface, (0, 0))
-        screen.blit(game.player.raven, game.player.rect)
+        screen.blit(game.player.image, game.player.rect)
         for power in game.player.all_power:
             power.move()
         for monster in game.all_monsters:
