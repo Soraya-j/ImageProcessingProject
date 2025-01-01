@@ -41,14 +41,28 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.game = game
         # player lives
-        self.health = 3
+        self.health = 90
+        self.max_health = 90
         self.speed = 20
-        raven = pygame.image.load("Raven.png")
-        self.image = pygame.transform.smoothscale(raven, (80,80))
+        image = pygame.image.load("Raven.png")
+        self.image = pygame.transform.smoothscale(image, (80,80))
         self.rect = self.image.get_rect()
         self.rect.x = 0
         self.rect.y = 0
         self.all_power = pygame.sprite.Group()
+    
+    def damage(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self.game.all_players.remove(self)
+
+    def update_health_bar(self, surface):
+        bar_color = (111,210,46)
+        back_bar_color = (60,63,60)
+        bar_position = [self.rect.x, self.rect.y - 20, self.health, 5]
+        back_bar_position = [self.rect.x, self.rect.y - 20, self.max_health, 5]
+        pygame.draw.rect(surface, back_bar_color, back_bar_position)
+        pygame.draw.rect(surface, bar_color, bar_position)
     
     def power(self):
         power = SuperPower(self)
@@ -117,12 +131,13 @@ class Monster(pygame.sprite.Sprite):
     def move(self):
         global i, dir, dir_list
         if i < 10 :
-            print(i)
             i = i + 1
         else:
             dir = random.choice(dir_list)
             i = 0
             print('dir : ', dir)
+        if self.game.check_collision(self, self.game.all_players):
+            self.game.player.damage(10)
         if dir == 'left' and self.rect.x > 0:
             self.rect.x  -= self.speed
         elif dir == 'right' and self.rect.x + self.rect.width < screen_width:
@@ -237,7 +252,14 @@ def main():
         frame_surface = pygame.surfarray.make_surface(np.rot90(pg_frame))
 
         screen.blit(frame_surface, (0, 0))
-        screen.blit(game.player.image, game.player.rect)
+        if game.player.health > 0:
+            screen.blit(game.player.image, game.player.rect)
+            game.player.update_health_bar(screen)
+        else :
+            myfont = pygame.font.SysFont("Comic Sans MS", 30)
+            label = myfont.render("Game Over", 1, (255, 0, 0))
+            screen.blit(label, (500, 350))
+
         for power in game.player.all_power:
             power.move()
         for monster in game.all_monsters:
