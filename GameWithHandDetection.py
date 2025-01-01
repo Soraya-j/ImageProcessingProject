@@ -92,13 +92,22 @@ class SuperPower(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = player.rect.x
         self.rect.y = player.rect.y
+        self.direction = direction
 
     def move(self): 
-        self.rect.x += self.speed
+        if self.direction == 'right':
+            self.rect.x += self.speed
+        elif self.direction == 'left':
+            self.rect.x -= self.speed
+        elif self.direction == 'down':
+            self.rect.y += self.speed
+        elif self.direction == 'up':
+            self.rect.y -= self.speed
+
         for monster in self.player.game.check_collision(self, self.player.game.all_monsters):
             self.player.all_power.remove(self)
             monster.damage(30)
-        if self.rect.x > screen_width:
+        if self.rect.x > screen_width or self.rect.x < 0 or self.rect.y > screen_height or self.rect.y < 0 :
             self.player.all_power.remove(self)
 
 class Monster(pygame.sprite.Sprite):
