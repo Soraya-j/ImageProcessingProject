@@ -121,7 +121,9 @@ class Player(pygame.sprite.Sprite):
     def release_key(self):
         collided_items = self.game.check_collision(self, self.game.all_items)
         for item in collided_items:
-            if item.type == "door":
+            if item.type == "door":  
+                self.game.all_players.remove(self)
+                self.health = -100              
                 print("FIN DU JEU")
 
 
@@ -342,14 +344,18 @@ def main():
         screen.blit(frame_surface, (0, 0))
         game.all_items.draw(screen)
         game.all_boxs.draw(screen)
-        
+
         if game.player.health > 0:
             screen.blit(game.player.image, game.player.rect)
             game.player.update_health_bar(screen)
+        elif game.player.health == -100:
+            myfont = pygame.font.SysFont("Comic Sans MS", 150)
+            label = myfont.render("You Win", 1, (200, 0, 200))
+            screen.blit(label, (200, 300))
         else :
-            myfont = pygame.font.SysFont("Comic Sans MS", 30)
+            myfont = pygame.font.SysFont("Comic Sans MS", 150)
             label = myfont.render("Game Over", 1, (255, 0, 0))
-            screen.blit(label, (500, 350))
+            screen.blit(label, (200, 300))
 
         for power in game.player.all_power:
             power.move()
