@@ -17,7 +17,7 @@ i = 0
 box_x = [800,900,400,200]
 box_y = [100,500,200,600]
 lives_image = pygame.transform.smoothscale(pygame.image.load('heart.png'), (60,60))
-diamond_image = pygame.transform.smoothscale(pygame.image.load('diamond.png'), (25,25))
+diamond_image = pygame.transform.smoothscale(pygame.image.load('key.png'), (30,30))
 pygame.init()
 
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -36,7 +36,7 @@ class Game:
         self.spawn_item(box_x[0], box_y[0], lives_image, "lives")
         self.spawn_item(box_x[1], box_y[1], lives_image, "lives")        
         self.spawn_item(box_x[2], box_y[2], lives_image, "lives")
-        self.spawn_item(box_x[3] + 10, box_y[3] + 5, diamond_image, "diamond")
+        self.spawn_item(box_x[3] + 10, box_y[3] + 5, diamond_image, "key")
 
         self.spawn_box(box_x[0], box_y[0])
         self.spawn_box(box_x[1], box_y[1])
