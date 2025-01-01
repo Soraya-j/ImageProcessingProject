@@ -17,7 +17,7 @@ i = 0
 box_x = [800,900,400,200]
 box_y = [100,500,200,600]
 lives_image = pygame.transform.smoothscale(pygame.image.load('heart.png'), (60,60))
-diamond_image = pygame.transform.smoothscale(pygame.image.load('key.png'), (30,30))
+key_image = pygame.transform.smoothscale(pygame.image.load('key.png'), (30,30))
 door_image = pygame.transform.smoothscale(pygame.image.load('door.png'), (100, 100))
 pygame.init()
 
@@ -37,7 +37,7 @@ class Game:
         self.spawn_item(box_x[0], box_y[0], lives_image, "lives")
         self.spawn_item(box_x[1], box_y[1], lives_image, "lives")        
         self.spawn_item(box_x[2], box_y[2], lives_image, "lives")
-        self.spawn_item(box_x[3] + 10, box_y[3] + 5, diamond_image, "key")
+        self.spawn_item(box_x[3] + 15, box_y[3] + 10, key_image, "key")
 
         self.spawn_box(box_x[0], box_y[0], "with lives")
         self.spawn_box(box_x[1], box_y[1], "with lives")
@@ -114,8 +114,15 @@ class Player(pygame.sprite.Sprite):
             if item.type == "lives":
                 self.game.all_items.remove(item)  
                 self.health += 10
-            else :
-                print("Jackpot")
+            elif item.type == "key" :
+                item.rect.x = self.rect.x
+                item.rect.y = self.rect.y  
+
+    def release_key(self):
+        collided_items = self.game.check_collision(self, self.game.all_items)
+        for item in collided_items:
+            if item.type == "door":
+                print("FIN DU JEU")
 
 
 class SuperPower(pygame.sprite.Sprite):
@@ -275,8 +282,8 @@ def main():
             print("unknow gesture")
 
     def detect_gesture_left(hand_landmarks):
-        finger_tips = [8, 12, 16, 20]  
-        finger_mcp = [6, 10, 14, 18]    
+        finger_tips = [8, 12, 16, 20, 4]  
+        finger_mcp = [6, 10, 14, 18, 3]    
         
         fingers_up = []
         for tip, mcp in zip(finger_tips, finger_mcp):
@@ -290,10 +297,13 @@ def main():
             game.player.image = pygame.transform.smoothscale(raven, (80,80))
             print('Super Power')
             game.player.power()
+        elif not any(fingers_up[:4]) and fingers_up[4]:
+            game.player.release_key()
+            print('key release') 
         elif not any(fingers_up):
             game.player.broken()
             print('Break')
-        elif fingers_up[0] and fingers_up[1] and not all(fingers_up[2:]):
+        elif all(fingers_up[:3]) and not any(fingers_up[3:]):
             game.player.taken()
             print('Item takes')
             raven = pygame.image.load('happyRaven.png')
@@ -330,6 +340,9 @@ def main():
         frame_surface = pygame.surfarray.make_surface(np.rot90(pg_frame))
 
         screen.blit(frame_surface, (0, 0))
+        game.all_items.draw(screen)
+        game.all_boxs.draw(screen)
+        
         if game.player.health > 0:
             screen.blit(game.player.image, game.player.rect)
             game.player.update_health_bar(screen)
@@ -346,8 +359,7 @@ def main():
 
         game.player.all_power.draw(screen)
         game.all_monsters.draw(screen)
-        game.all_items.draw(screen)
-        game.all_boxs.draw(screen)
+        
         pygame.display.flip()
 
         for event in pygame.event.get():
