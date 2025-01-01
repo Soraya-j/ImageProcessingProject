@@ -14,7 +14,10 @@ direction = None
 dir_list = ['left', 'right', 'up', 'down']
 dir = random.choice(dir_list)
 i = 0
-
+box_x = [800,900,400,200]
+box_y = [100,500,200,600]
+lives_image = pygame.transform.smoothscale(pygame.image.load('heart.png'), (60,60))
+diamond_image = pygame.transform.smoothscale(pygame.image.load('diamond.png'), (25,25))
 pygame.init()
 
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -27,12 +30,18 @@ class Game:
         self.all_players.add(self.player)
         self.all_monsters = pygame.sprite.Group()
         self.all_boxs = pygame.sprite.Group()
+        self.all_items = pygame.sprite.Group()
         self.pressed = {}
         self.spawn_monster()
-        self.spawn_box(800,100)
-        self.spawn_box(900,500)
-        self.spawn_box(400,200)
-        self.spawn_box(200,600)
+        self.spawn_item(box_x[0], box_y[0], lives_image)
+        self.spawn_item(box_x[1], box_y[1], lives_image)        
+        self.spawn_item(box_x[2], box_y[2], lives_image)
+        self.spawn_item(box_x[3] + 10, box_y[3] + 5, diamond_image)
+
+        self.spawn_box(box_x[0], box_y[0])
+        self.spawn_box(box_x[1], box_y[1])
+        self.spawn_box(box_x[2], box_y[2])
+        self.spawn_box(box_x[3], box_y[3])
     
     def check_collision(self, sprite, group):
         return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
@@ -44,13 +53,17 @@ class Game:
     def spawn_box(self, x, y):
         box = Box(self, x, y)
         self.all_boxs.add(box)
+    
+    def spawn_item(self, x ,y, image):
+        item = Items(self, x, y, image)
+        self.all_items.add(item)
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, game):
         super().__init__()
         self.game = game
         # player lives
-        self.health = 90
+        self.health = 60
         self.max_health = 90
         self.speed = 15
         image = pygame.image.load("Raven.png")
@@ -137,9 +150,17 @@ class Box(pygame.sprite.Sprite):
     
     def damage(self, amount):
         self.healt -= amount
-        print('DAMAGES')
         if self.healt <= 0:
             self.game.all_boxs.remove(self)
+
+class Items(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, image):
+        super().__init__()
+        self.game = game
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
 class Monster(pygame.sprite.Sprite):
     def __init__(self, game):
@@ -218,18 +239,18 @@ def main():
                 dy = y - prev_y
                 
                 if abs(dx) > abs(dy):
-                    if dx > 20 :
+                    if dx > 30 :
                         direction = 'right'
                         print('move right')
                         
-                    elif dx < -20 :
+                    elif dx < -30 :
                         direction = 'left'
                         print('move left')
                 else:  
-                    if dy > 20 :
+                    if dy > 30 :
                         direction = 'down'  
                         print('move down')
-                    elif dy < -20 :
+                    elif dy < -30 :
                         direction = 'up'  
                         print('move up')
             game.player.move(direction)
@@ -309,6 +330,7 @@ def main():
 
         game.player.all_power.draw(screen)
         game.all_monsters.draw(screen)
+        game.all_items.draw(screen)
         game.all_boxs.draw(screen)
         pygame.display.flip()
 
