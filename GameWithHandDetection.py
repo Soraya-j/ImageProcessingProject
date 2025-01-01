@@ -71,7 +71,7 @@ class Player(pygame.sprite.Sprite):
 class SuperPower(pygame.sprite.Sprite):
     def __init__(self, player):
         super().__init__()
-        self.speed = 40
+        self.speed = 50
         self.player = player
         image = pygame.image.load("fire.png")
         self.image = pygame.transform.smoothscale(image, (30,30))
@@ -81,6 +81,9 @@ class SuperPower(pygame.sprite.Sprite):
 
     def move(self): 
         self.rect.x += self.speed
+        for monster in self.player.game.check_collision(self, self.player.game.all_monsters):
+            self.player.all_power.remove(self)
+            monster.damage(30)
         if self.rect.x > screen_width:
             self.player.all_power.remove(self)
 
@@ -93,8 +96,23 @@ class Monster(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(0, screen_width)
         self.rect.y = random.randint(0, screen_height)
-        self.speed = 20
-        self.health = 2
+        self.speed = 15
+        self.health = 60
+        self.max_health = 60
+    
+    def damage(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            #Je pourrais en faire apparaitre un autre à la place de le supprimer
+            self.game.all_monsters.remove(self)
+    
+    def update_health_bar(self, surface):
+        bar_color = (111,210,46)
+        back_bar_color = (60,63,60)
+        bar_position = [self.rect.x, self.rect.y - 20, self.health, 5]
+        back_bar_position = [self.rect.x, self.rect.y - 20, self.max_health, 5]
+        pygame.draw.rect(surface, back_bar_color, back_bar_position)
+        pygame.draw.rect(surface, bar_color, bar_position)
     
     def move(self):
         global i, dir, dir_list
@@ -224,6 +242,7 @@ def main():
             power.move()
         for monster in game.all_monsters:
             monster.move()
+            monster.update_health_bar(screen)
 
         game.player.all_power.draw(screen)
         game.all_monsters.draw(screen)
