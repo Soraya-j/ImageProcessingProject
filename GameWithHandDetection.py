@@ -33,10 +33,10 @@ class Game:
         self.all_items = pygame.sprite.Group()
         self.pressed = {}
         self.spawn_monster()
-        self.spawn_item(box_x[0], box_y[0], lives_image)
-        self.spawn_item(box_x[1], box_y[1], lives_image)        
-        self.spawn_item(box_x[2], box_y[2], lives_image)
-        self.spawn_item(box_x[3] + 10, box_y[3] + 5, diamond_image)
+        self.spawn_item(box_x[0], box_y[0], lives_image, "lives")
+        self.spawn_item(box_x[1], box_y[1], lives_image, "lives")        
+        self.spawn_item(box_x[2], box_y[2], lives_image, "lives")
+        self.spawn_item(box_x[3] + 10, box_y[3] + 5, diamond_image, "diamond")
 
         self.spawn_box(box_x[0], box_y[0])
         self.spawn_box(box_x[1], box_y[1])
@@ -54,8 +54,8 @@ class Game:
         box = Box(self, x, y)
         self.all_boxs.add(box)
     
-    def spawn_item(self, x ,y, image):
-        item = Items(self, x, y, image)
+    def spawn_item(self, x ,y, image, item_type):
+        item = Items(self, x, y, image, item_type)
         self.all_items.add(item)
 
 class Player(pygame.sprite.Sprite):
@@ -111,9 +111,13 @@ class Player(pygame.sprite.Sprite):
 
     def taken(self):
         collided_items = self.game.check_collision(self, self.game.all_items)
-        print('collided items : ', collided_items)
         for item in collided_items:
-            self.game.all_items.remove(item)         
+            self.game.all_items.remove(item)  
+            if item.type == "lives":
+                self.health += 10
+            else :
+                print("Jackpot")
+
 
 class SuperPower(pygame.sprite.Sprite):
     def __init__(self, player):
@@ -160,13 +164,14 @@ class Box(pygame.sprite.Sprite):
             self.game.all_boxs.remove(self)
 
 class Items(pygame.sprite.Sprite):
-    def __init__(self, game, x, y, image):
+    def __init__(self, game, x, y, image, item_type):
         super().__init__()
         self.game = game
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.type = item_type
 
 class Monster(pygame.sprite.Sprite):
     def __init__(self, game):
