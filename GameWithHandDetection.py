@@ -92,16 +92,12 @@ class Player(pygame.sprite.Sprite):
 
     def move(self, direction):
         if direction == 'left' and self.rect.x > 0:
-            if not self.game.check_collision(self, self.game.all_monsters):
                 self.rect.x -= self.speed
         elif direction == 'right' and self.rect.x + self.rect.width < screen_width:
-            if not self.game.check_collision(self, self.game.all_monsters):
                 self.rect.x += self.speed
         elif direction == 'up' and self.rect.y > 0:
-            if not self.game.check_collision(self, self.game.all_monsters):
                 self.rect.y -= self.speed
         elif direction == 'down' and self.rect.y + self.rect.height < screen_height:
-            if not self.game.check_collision(self, self.game.all_monsters):
                 self.rect.y += self.speed
 
     def broken(self):
@@ -209,7 +205,7 @@ class Monster(pygame.sprite.Sprite):
             i = 0
             print('dir : ', dir)
         if self.game.check_collision(self, self.game.all_players):
-            self.game.player.damage(10)
+            self.game.player.damage(5)
         if dir == 'left' and self.rect.x > 0:
             self.rect.x  -= self.speed
         elif dir == 'right' and self.rect.x + self.rect.width < screen_width:
