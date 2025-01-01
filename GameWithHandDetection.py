@@ -18,6 +18,7 @@ box_x = [800,900,400,200]
 box_y = [100,500,200,600]
 lives_image = pygame.transform.smoothscale(pygame.image.load('heart.png'), (60,60))
 diamond_image = pygame.transform.smoothscale(pygame.image.load('key.png'), (30,30))
+door_image = pygame.transform.smoothscale(pygame.image.load('door.png'), (100, 100))
 pygame.init()
 
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -38,10 +39,10 @@ class Game:
         self.spawn_item(box_x[2], box_y[2], lives_image, "lives")
         self.spawn_item(box_x[3] + 10, box_y[3] + 5, diamond_image, "key")
 
-        self.spawn_box(box_x[0], box_y[0])
-        self.spawn_box(box_x[1], box_y[1])
-        self.spawn_box(box_x[2], box_y[2])
-        self.spawn_box(box_x[3], box_y[3])
+        self.spawn_box(box_x[0], box_y[0], "with lives")
+        self.spawn_box(box_x[1], box_y[1], "with lives")
+        self.spawn_box(box_x[2], box_y[2], "with lives")
+        self.spawn_box(box_x[3], box_y[3], "with key")
     
     def check_collision(self, sprite, group):
         return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
@@ -50,8 +51,8 @@ class Game:
         monster = Monster(self)
         self.all_monsters.add(monster)
 
-    def spawn_box(self, x, y):
-        box = Box(self, x, y)
+    def spawn_box(self, x, y, box_type):
+        box = Box(self, x, y, box_type)
         self.all_boxs.add(box)
     
     def spawn_item(self, x ,y, image, item_type):
@@ -103,13 +104,15 @@ class Player(pygame.sprite.Sprite):
     def broken(self):
         collided_boxes = self.game.check_collision(self, self.game.all_boxs)
         for box in collided_boxes:
+            if box.type == "with key":
+                self.game.spawn_item(600, 350, door_image, "door")
             box.damage(10)     
 
     def taken(self):
         collided_items = self.game.check_collision(self, self.game.all_items)
         for item in collided_items:
-            self.game.all_items.remove(item)  
             if item.type == "lives":
+                self.game.all_items.remove(item)  
                 self.health += 10
             else :
                 print("Jackpot")
@@ -144,7 +147,7 @@ class SuperPower(pygame.sprite.Sprite):
             self.player.all_power.remove(self)
 
 class Box(pygame.sprite.Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x, y, box_type):
         super().__init__()
         self.game = game
         image = pygame.image.load('Box.png')
@@ -153,6 +156,7 @@ class Box(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.healt = 20
+        self.type = box_type
     
     def damage(self, amount):
         self.healt -= amount
