@@ -3,6 +3,7 @@ import mediapipe.python.solutions.hands as mp_hands
 import mediapipe.python.solutions.drawing_utils as drawing
 import pygame
 import numpy as np
+import random
 
 hands = mp_hands.Hands(static_image_mode=False,max_num_hands=2,min_detection_confidence=0.5)
 screen_width = 1200
@@ -10,6 +11,10 @@ screen_height = 700
 prev_x = None
 prev_y = None
 direction = None
+dir_list = ['left', 'right', 'up', 'down']
+dir = random.choice(dir_list)
+i = 0
+
 pygame.init()
 
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -18,7 +23,13 @@ pygame.display.set_caption("Game with hand detection")
 class Game:
     def __init__(self):
         self.player = Player()
+        self.all_monsters = pygame.sprite.Group()
         self.pressed = {}
+        self.spawn_monster()
+
+    def spawn_monster(self):
+        monster = Monster()
+        self.all_monsters.add(monster)
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -44,7 +55,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += self.speed
         elif direction == 'up' and self.rect.y > 0:
             self.rect.y -= self.speed
-        elif direction == 'down'and self.rect.y + self.rect.height < screen_height:
+        elif direction == 'down' and self.rect.y + self.rect.height < screen_height:
             self.rect.y += self.speed
 
 class SuperPower(pygame.sprite.Sprite):
@@ -63,6 +74,35 @@ class SuperPower(pygame.sprite.Sprite):
         if self.rect.x > screen_width:
             self.player.all_power.remove(self)
 
+class Monster(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        image = pygame.image.load('monster.png')
+        self.image = pygame.transform.smoothscale(image,(60,60))
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randint(0, screen_width)
+        self.rect.y = random.randint(0, screen_height)
+        self.speed = 20
+    
+    def move(self):
+        global i, dir, dir_list
+        if i < 10 :
+            print(i)
+            i = i + 1
+        else:
+            dir = random.choice(dir_list)
+            i = 0
+            print('dir : ', dir)
+        if dir == 'left' and self.rect.x > 0:
+            self.rect.x  -= self.speed
+        elif dir == 'right' and self.rect.x + self.rect.width < screen_width:
+            self.rect.x += self.speed
+        elif dir == 'down' and self.rect.y + self.rect.height < screen_height:
+            self.rect.y  += self.speed
+        elif dir == 'up' and self.rect.y > 0:
+            self.rect.y -= self.speed
+        else :
+            dir = random.choice(dir_list)
 
 def main():
     cam = cv2.VideoCapture(0)
@@ -170,8 +210,11 @@ def main():
         screen.blit(game.player.raven, game.player.rect)
         for power in game.player.all_power:
             power.move()
+        for monster in game.all_monsters:
+            monster.move()
 
         game.player.all_power.draw(screen)
+        game.all_monsters.draw(screen)
         pygame.display.flip()
 
         for event in pygame.event.get():
