@@ -48,8 +48,8 @@ def detect_gesture_right(hand_landmarks):
         print("unknow gesture")
 
 def detect_gesture_left(hand_landmarks):
-        finger_tips = [8, 12, 16, 20]  
-        finger_mcp = [6, 10, 14, 18]    
+        finger_tips = [8, 12, 16, 20, 4]  
+        finger_mcp = [6, 10, 14, 18, 3]    
         
         fingers_up = []
         for tip, mcp in zip(finger_tips, finger_mcp):
@@ -57,10 +57,10 @@ def detect_gesture_left(hand_landmarks):
                 fingers_up.append(True)  
             else:
                 fingers_up.append(False) 
-                
+        print(fingers_up[:2], fingers_up[2:])       
         if not fingers_up[0] and all(fingers_up[1:]):
             print('Super Power')
-        elif not any(fingers_up):
+        elif not any(fingers_up[:4]):
             print('Break')
         else :
             print('waiting')

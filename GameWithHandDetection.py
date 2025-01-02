@@ -16,9 +16,9 @@ dir = random.choice(dir_list)
 i = 0
 box_x = [800,900,400,200]
 box_y = [100,500,200,600]
-lives_image = pygame.transform.smoothscale(pygame.image.load('heart.png'), (60,60))
-key_image = pygame.transform.smoothscale(pygame.image.load('key.png'), (30,30))
-door_image = pygame.transform.smoothscale(pygame.image.load('door.png'), (100, 100))
+lives_image = pygame.transform.smoothscale(pygame.image.load('image/heart.png'), (60,60))
+key_image = pygame.transform.smoothscale(pygame.image.load('image/key.png'), (30,30))
+door_image = pygame.transform.smoothscale(pygame.image.load('image/door.png'), (100, 100))
 pygame.init()
 
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -67,7 +67,7 @@ class Player(pygame.sprite.Sprite):
         self.health = 60
         self.max_health = 90
         self.speed = 15
-        image = pygame.image.load("Raven.png")
+        image = pygame.image.load("image/Raven.png")
         self.image = pygame.transform.smoothscale(image, (80,80))
         self.rect = self.image.get_rect()
         self.rect.x = 0
@@ -132,7 +132,7 @@ class SuperPower(pygame.sprite.Sprite):
         super().__init__()
         self.speed = 50
         self.player = player
-        image = pygame.image.load("fire.png")
+        image = pygame.image.load("image/fire.png")
         self.image = pygame.transform.smoothscale(image, (30,30))
         self.rect = self.image.get_rect()
         self.rect.x = player.rect.x
@@ -159,7 +159,7 @@ class Box(pygame.sprite.Sprite):
     def __init__(self, game, x, y, box_type):
         super().__init__()
         self.game = game
-        image = pygame.image.load('Box.png')
+        image = pygame.image.load('image/Box.png')
         self.image = pygame.transform.smoothscale(image, (60,60))
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -186,7 +186,7 @@ class Monster(pygame.sprite.Sprite):
     def __init__(self, game):
         super().__init__()
         self.game = game
-        image = pygame.image.load('monster.png')
+        image = pygame.image.load('image/monster.png')
         self.image = pygame.transform.smoothscale(image,(60,60))
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(0, screen_width)
@@ -295,7 +295,7 @@ def main():
                 fingers_up.append(False) 
                 
         if not fingers_up[0] and all(fingers_up[1:]):
-            raven = pygame.image.load("Attack.png")
+            raven = pygame.image.load("image/Attack.png")
             game.player.image = pygame.transform.smoothscale(raven, (80,80))
             print('Super Power')
             game.player.power()
@@ -308,10 +308,10 @@ def main():
         elif all(fingers_up[:3]) and not any(fingers_up[3:]):
             game.player.taken()
             print('Item takes')
-            raven = pygame.image.load('happyRaven.png')
+            raven = pygame.image.load('image/happyRaven.png')
             game.player.image = pygame.transform.smoothscale(raven, (80,80))
         else :
-            raven = pygame.image.load("Raven.png")
+            raven = pygame.image.load("image/Raven.png")
             game.player.image = pygame.transform.smoothscale(raven, (80,80))
             print('waiting')
 
@@ -351,11 +351,11 @@ def main():
         elif game.player.health == -100:
             myfont = pygame.font.SysFont("Comic Sans MS", 150)
             label = myfont.render("You Win", 1, (200, 0, 200))
-            screen.blit(label, (200, 300))
+            screen.blit(label, (300, 250))
         else :
             myfont = pygame.font.SysFont("Comic Sans MS", 150)
             label = myfont.render("Game Over", 1, (255, 0, 0))
-            screen.blit(label, (200, 300))
+            screen.blit(label, (300, 250))
 
         for power in game.player.all_power:
             power.move()
