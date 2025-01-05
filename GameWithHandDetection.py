@@ -7,7 +7,7 @@ import random
 # use of the library mediapipe hand
 hands = mp_hands.Hands(static_image_mode=False,             # for a video flux
                         max_num_hands=2,                    # max number of detected hands
-                        min_detection_confidence=0.4)       # treshold for the detection confidence (between 0.0 and 1.0)
+                        min_detection_confidence=0.6)       # treshold for the detection confidence (between 0.0 and 1.0)
 screen_width = 1200
 screen_height = 700
 prev_x = None
@@ -316,18 +316,20 @@ def main():
                 dy = y - prev_y
                 
                 # depending on the hand movement a direction is given for the player
-                if dx > 30 :
-                    direction = 'right'
-                    print('move right')   
-                elif dx < -30 :
-                    direction = 'left'
-                    print('move left')
-                elif dy > 30 :
-                    direction = 'down'  
-                    print('move down')
-                elif dy < -30 :
-                    direction = 'up'  
-                    print('move up')
+                if abs(dx) > abs(dy) :
+                    if dx > 30 :
+                        direction = 'right'
+                        print('move right')   
+                    elif dx < -30 :
+                        direction = 'left'
+                        print('move left')
+                else :
+                    if dy > 30 :
+                        direction = 'down'  
+                        print('move down')
+                    elif dy < -30 :
+                        direction = 'up'  
+                        print('move up')
 
             game.player.move(direction)
             prev_x = x
@@ -407,12 +409,13 @@ def main():
         ret, frame = cam.read()
         # flip to see like a mirror
         flip_frame = cv2.flip(frame, 1)
-        img_brg = cv2.cvtColor(flip_frame, cv2.COLOR_BGR2RGB)
+        # convert color BGR into RGB
+        img_rgb = cv2.cvtColor(flip_frame, cv2.COLOR_BGR2RGB)
 
         # call of the function detect_hand
-        detect_hand(img_brg)
+        detect_hand(img_rgb)
         
-        # convert frame into pygame.Surface
+        # convert frame into pygame.Surface and RGB color
         pg_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame_surface = pygame.surfarray.make_surface(np.rot90(pg_frame))
 
