@@ -33,17 +33,17 @@ To achieve this the player can use different gestures with his hands to control 
 - The left hand : controls the character's actions
     - break sign -> to break the boxes
       
-      <img src="images_ReadMe/Break.jpg" alt="Break sign" width="20">
+      <img src="images_ReadMe/Break.jpg" alt="Break sign" width="100">
       
     - SuperPower -> active the Superpower who can kill the monster (superpower move in the character's direction)
       
-      <img src="images_ReadMe/SuperPowers.jpg" alt="SuperPower sign" width="20">
+      <img src="images_ReadMe/SuperPowers.jpg" alt="SuperPower sign" width="100">
       
     - Takes items -> to take the item when the box is broken
       
-      <img src="images_ReadMe/TakesItems.jpg" alt="Takes items sign" width="20">
+      <img src="images_ReadMe/TakesItems.jpg" alt="Takes items sign" width="100">
       
     - Key release -> allow to win the game when the key is on the door
          
-      <img src="images_ReadMe/KeyRelease.jpg" alt="Key release sign" width="20">
+      <img src="images_ReadMe/KeyRelease.jpg" alt="Key release sign" width="100">
   
