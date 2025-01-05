@@ -1,5 +1,6 @@
 # Game with Hand Gesture Recognition
-
+The project is a game controlled by image processing. The game is developed with pygame and uses Mediapipe for the hand gesture recognition.
+The player control the game only with the position of his hands.
 ## Requirements
 - Python 3.x
 - OpenCV
@@ -31,11 +32,18 @@ To achieve this the player can use different gestures with his hands to control 
 
 - The left hand : controls the character's actions
     - break sign -> to break the boxes
-    ![Description de l'image](images_ReadMe/Break.jpg)
+      
+      <img src="images_ReadMe/Break.jpg" alt="Break sign" width="20">
+      
     - SuperPower -> active the Superpower who can kill the monster (superpower move in the character's direction)
-    ![Description de l'image](images_ReadMe/SuperPowers.jpg)
+      
+      <img src="images_ReadMe/SuperPowers.jpg" alt="SuperPower sign" width="20">
+      
     - Takes items -> to take the item when the box is broken
-    ![Description de l'image](images_ReadMe/TakesItems.jpg)
+      
+      <img src="images_ReadMe/TakesItems.jpg" alt="Takes items sign" width="20">
+      
     - Key release -> allow to win the game when the key is on the door
-    ![Description de l'image](images_ReadMe/KeyRelease.jpg)
+         
+      <img src="images_ReadMe/KeyRelease.jpg" alt="Key release sign" width="20">
   
