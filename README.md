@@ -30,5 +30,9 @@ To achieve this the player can use different gestures with his hands to control 
     - displacement of the hand give the character's direction
 
 - The left hand : controls the character's actions
-    - 
+    - break sign -> to break the boxes
+      ![Description de l'image](images_ReadMe/break.jpg)
+    - SuperPower -> active the Superpower who can kill the monster (superpower move in the character's direction)
+    - Takes items -> to take the item when the box is broken
+    - Key release -> allow to win the game when the key is on the door
   
